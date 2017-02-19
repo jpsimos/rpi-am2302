@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#RPI-AM2302 Build Script by Jacob Psimos
+gcc -o am2302 -std=gnu99 am2302.c pi_gpio_lib.c am2302_read.c -lrt -lm
