@@ -63,7 +63,8 @@ byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
 	*temperature = 0.0f;
 	*humidity = 0.0f;
 
-	int pulseCounts[AM2302_PULSES_BUFFER] = {0};
+	int pulseCounts[AM2302_PULSES_BUFFER];
+	memset(pulseCounts, 0, sizeof(int) * AM2302_PULSES_BUFFER); //fix
 
 	gpio_mode(pin, MODE_OUTPUT);
 	if(!set_max_priority()){
@@ -113,7 +114,8 @@ byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
 	}
 	threshold /= (AM2302_PULSES - 1);
 	
-	byte data[5] = {0};
+	byte data[5];
+	memset(data, 0, sizeof(byte) * 5); //fixed
 	
 	for(int i = 3; i < AM2302_PULSES_BUFFER; i += 2){
 		int index = (i - 3) / 16;
