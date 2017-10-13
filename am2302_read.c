@@ -17,16 +17,28 @@
 #include "pi_gpio_lib.h"
 #include "am2302_read.h"
 
+#ifndef _AM2302_DEFS_
+#define _AM2302_DEFS_
+	#define AM2302_MAXCOUNT 30000
+	#define AM2302_PULSES 41
+	#define AM2302_PULSES_BUFFER (AM2302_PULSES * 2)
+	#define AM2302_FAILED_CHECKSUM 104
+	#define AM2302_TIMEOUT 100
+	#define AM2302_ERROR 101
+	#define AM2302_ABORT 102
+	#define AM2302_SUCCESS 103
+#endif
+
 void accurate_sleep_milliseconds(unsigned int millis){
   struct timeval deltatime;
   deltatime.tv_sec = millis / 1000;
   deltatime.tv_usec = (millis % 1000) * 1000;
   struct timeval walltime;
-  gettimeofday(&walltime, NULL);
+  gettimeofday(&walltime, (struct timezone*)NULL);
   struct timeval endtime;
   timeradd(&walltime, &deltatime, &endtime);
   while (timercmp(&walltime, &endtime, <)) {
-	gettimeofday(&walltime, NULL);
+	gettimeofday(&walltime, (struct timezone*)NULL);
   }
 }
 
@@ -37,22 +49,22 @@ void sleep_milliseconds(unsigned int millis){
   while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR);
 }
 
-boolean set_max_priority(void){
+unsigned char set_max_priority(void){
   struct sched_param sched;
   memset(&sched, 0, sizeof(sched));
   sched.sched_priority = sched_get_priority_max(SCHED_FIFO);
   return (sched_setscheduler(0, SCHED_FIFO, &sched) == 0);
 }
 
-boolean set_default_priority(void){
+unsigned char set_default_priority(void){
   struct sched_param sched;
   memset(&sched, 0, sizeof(sched));
   sched.sched_priority = 0;
   return (sched_setscheduler(0, SCHED_OTHER, &sched) == 0);
 }
 
-byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
-	if (humidity == NULL || temperature == NULL) {
+uint8_t am2302_read(const unsigned int pin, float* humidity, float* temperature){
+	if (humidity == (float*)NULL || temperature == (float*)NULL) {
 		return AM2302_ERROR;
 	}
 	
@@ -64,7 +76,7 @@ byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
 	*humidity = 0.0f;
 
 	int pulseCounts[AM2302_PULSES_BUFFER];
-	memset(pulseCounts, 0, sizeof(int) * AM2302_PULSES_BUFFER); //fix
+	memset(pulseCounts, 0, AM2302_PULSES_BUFFER * sizeof(int));
 
 	gpio_mode(pin, MODE_OUTPUT);
 	if(!set_max_priority()){
@@ -73,7 +85,6 @@ byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
 	
 	gpio_set(pin, LOGIC_HIGH);
 	sleep_milliseconds(500);
-
 
 	gpio_set(pin, LOGIC_LOW);
 	accurate_sleep_milliseconds(20);
@@ -114,9 +125,9 @@ byte am2302_read(const unsigned int pin, float* humidity, float* temperature){
 	}
 	threshold /= (AM2302_PULSES - 1);
 	
-	byte data[5];
-	memset(data, 0, sizeof(byte) * 5); //fixed
-	
+	uint8_t data[5];
+	memset(data, 0, sizeof(data));
+
 	for(int i = 3; i < AM2302_PULSES_BUFFER; i += 2){
 		int index = (i - 3) / 16;
 		data[index] <<= 1;
