@@ -15,11 +15,11 @@
 	#define AM2302_MAXCOUNT 30000
 	#define AM2302_PULSES 41
 	#define AM2302_PULSES_BUFFER (AM2302_PULSES * 2)
+	#define AM2302_SUCCESS 100
+	#define AM2302_TIMEOUT 101
+	#define AM2302_ERROR 102
+	#define AM2302_ABORT 103
 	#define AM2302_FAILED_CHECKSUM 104
-	#define AM2302_TIMEOUT 100
-	#define AM2302_ERROR 101
-	#define AM2302_ABORT 102
-	#define AM2302_SUCCESS 103
 #endif
 
 void accurate_sleep_milliseconds(unsigned int millis);

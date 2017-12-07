@@ -17,18 +17,6 @@
 #include "pi_gpio_lib.h"
 #include "am2302_read.h"
 
-#ifndef _AM2302_DEFS_
-#define _AM2302_DEFS_
-	#define AM2302_MAXCOUNT 30000
-	#define AM2302_PULSES 41
-	#define AM2302_PULSES_BUFFER (AM2302_PULSES * 2)
-	#define AM2302_FAILED_CHECKSUM 104
-	#define AM2302_TIMEOUT 100
-	#define AM2302_ERROR 101
-	#define AM2302_ABORT 102
-	#define AM2302_SUCCESS 103
-#endif
-
 void accurate_sleep_milliseconds(unsigned int millis){
   struct timeval deltatime;
   deltatime.tv_sec = millis / 1000;
@@ -69,7 +57,7 @@ uint8_t am2302_read(const unsigned int pin, float* humidity, float* temperature)
 	}
 	
 	if(init_gpio() == INIT_ERROR){
-		return AM2302_ABORT;
+		return AM2302_ERROR;
 	}
 
 	*temperature = 0.0f;
